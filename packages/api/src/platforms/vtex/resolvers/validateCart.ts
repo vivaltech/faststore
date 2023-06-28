@@ -306,6 +306,8 @@ export const validateCart = async (
     acceptedOffer,
     shouldSplitItem,
   } = order
+  console.log('[API] order: ', order)
+
   const {
     clients: { commerce },
     loaders: { skuLoader },
@@ -327,11 +329,15 @@ export const validateCart = async (
     headers,
     commerce
   )
+  console.log('[API] orderNumberFromSession: ', orderNumberFromSession)
 
   const orderNumber = orderNumberFromSession ?? orderNumberFromCart ?? ''
 
+  console.log('[API] orderNumber: ', orderNumber)
+
   // Step1: Get OrderForm from VTEX Commerce
   const orderForm = await getOrderForm(orderNumber, session, ctx)
+  console.log('[API] orderForm: ', orderForm)
 
   // Step1.1: Checks if the orderForm id has changed. There are three cases for this:
   // Social Selling: the vtex_session cookie contains a new orderForm id with Social Selling data
@@ -347,10 +353,14 @@ export const validateCart = async (
   // to see this new cart state instead of what's stored on the user's browser.
   const isStale = isOrderFormStale(orderForm)
 
+  console.log('[API] isStale: ', isStale)
+
   if (isStale && orderNumber) {
     const newOrderForm = await setOrderFormEtag(orderForm, commerce).then(
       joinItems
     )
+    console.log('[API] newOrderForm: ', newOrderForm)
+
     return orderFormToCart(newOrderForm, skuLoader)
   }
 
@@ -416,6 +426,8 @@ export const validateCart = async (
     // update orderForm etag so we know last time we touched this orderForm
     .then((form) => setOrderFormEtag(form, commerce))
     .then(joinItems)
+
+  console.log('[API] updatedOrderForm: ', updatedOrderForm)
 
   // Step5: If no changes detected before/after updating orderForm, the order is validated
   if (equals(order, updatedOrderForm)) {
