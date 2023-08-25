@@ -1,5 +1,4 @@
-import { useGalleryPage } from 'src/components/templates/ProductListingPage/ProductListing'
-import { usePLP } from 'src/sdk/overrides/PageProvider'
+import { usePLP } from 'src/typings/pageProvider'
 
 export interface CallToActionProps {
   title: string
@@ -10,16 +9,8 @@ export interface CallToActionProps {
 }
 
 export default function CallToAction(props: CallToActionProps) {
-  // const context = usePLP()
-  const context2 = useGalleryPage(0)
-  console.log('🚀 ~ context2:', context2)
-  // console.log(
-  //   '🚀 ~ CallToAction context productsPerPage:',
-  //   context?.data?.productsPerPage
-  // )
-  return (
-    <section>
-      <h2>{`${props.title}`}</h2>
-    </section>
-  )
+  const data = usePLP()
+
+  console.log(data?.data?.productsPerPage)
+  return <></>
 }
