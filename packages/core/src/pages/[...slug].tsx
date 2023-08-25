@@ -9,7 +9,7 @@ import type {
 import { mark } from 'src/sdk/tests/mark'
 import { execute } from 'src/server'
 
-import { Locator } from '@vtex/client-cms'
+import { Locator, Section } from '@vtex/client-cms'
 import GlobalSections, {
   getGlobalSectionsData,
   GlobalSectionsData,
@@ -122,6 +122,11 @@ export const getStaticProps: GetStaticProps<
     console.error(...errors)
     throw errors[0]
   }
+  page?.sections?.push({
+    id: '123456789',
+    name: 'CallToAction',
+    data: { title: 'TESTANDO' },
+  } as Section)
 
   return {
     props: {

@@ -1,11 +1,13 @@
-// This is an example of how it can be used on the starter.
-
-import { SectionOverride } from 'src/typings/overrides'
+import { SectionOverride } from '@faststore/core/src/typings/overrides'
+import { CustomBuyButton } from '../CustomBuyButton'
 
 const SECTION = 'ProductDetails' as const
 
 const override: SectionOverride = {
   section: SECTION,
+  components: {
+    BuyButton: { Component: CustomBuyButton },
+  },
 }
 
 export { override }

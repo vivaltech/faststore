@@ -4,6 +4,7 @@ export const fragment = gql`
   fragment ClientProduct on Query {
     product(locator: $locator) {
       id: productID
+      customData
     }
   }
 `

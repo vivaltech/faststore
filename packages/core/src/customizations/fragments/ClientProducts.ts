@@ -13,6 +13,11 @@ export const fragment = gql`
         pageInfo {
           totalCount
         }
+        edges {
+          node {
+            customData
+          }
+        }
       }
     }
   }

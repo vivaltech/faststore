@@ -73,6 +73,11 @@ export type DeliveryIds = {
   warehouseId: Maybe<Scalars['String']>
 }
 
+export type ExtraData = {
+  /** Data customizing ExtraData */
+  data: Scalars['String']
+}
+
 export type IGeoCoordinates = {
   /** The latitude of the geographic coordinates. */
   latitude: Scalars['Float']
@@ -376,6 +381,8 @@ export type Query = {
   allProducts: StoreProductConnection
   /** Returns the details of a collection based on the collection slug. */
   collection: StoreCollection
+  extraData: Maybe<ExtraData>
+  namedExtraData: Maybe<ExtraData>
   /** Returns the details of a product based on the specified locator. */
   product: StoreProduct
   /** Returns if there's a redirect for a search. */
@@ -400,6 +407,10 @@ export type QueryAllProductsArgs = {
 
 export type QueryCollectionArgs = {
   slug: Scalars['String']
+}
+
+export type QueryNamedExtraDataArgs = {
+  name: Scalars['String']
 }
 
 export type QueryProductArgs = {
@@ -832,6 +843,8 @@ export type StoreProduct = {
   brand: StoreBrand
   /** List of items consisting of chain linked web pages, ending with the current page. */
   breadcrumbList: StoreBreadcrumbList
+  /** Custom data extending StoreProduct */
+  customData: Scalars['String']
   /** Product description. */
   description: Scalars['String']
   /** Global Trade Item Number. */
@@ -1092,53 +1105,34 @@ export type ProductDetailsFragment_ProductFragment = {
   }>
 }
 
-export type ClientProductGalleryQueryQueryVariables = Exact<{
-  first: Scalars['Int']
-  after: Scalars['String']
-  sort: StoreSort
-  term: Scalars['String']
-  selectedFacets: Array<IStoreSelectedFacet> | IStoreSelectedFacet
-}>
-
-export type ClientProductGalleryQueryQuery = {
-  search: {
-    products: { pageInfo: { totalCount: number } }
-    facets: Array<
-      | {
-          __typename: 'StoreFacetBoolean'
-          key: string
-          label: string
-          values: Array<{
-            label: string
-            value: string
-            selected: boolean
-            quantity: number
-          }>
-        }
-      | {
-          __typename: 'StoreFacetRange'
-          key: string
-          label: string
-          min: { selected: number; absolute: number }
-          max: { selected: number; absolute: number }
-        }
-    >
-  }
+export type ClientProductFragment = {
+  product: { customData: string; id: string }
 }
-
-export type ClientProductFragment = { product: { id: string } }
 
 export type ClientProductGalleryFragment = {
   search: { products: { pageInfo: { totalCount: number } } }
 }
 
 export type ClientProductsFragment = {
-  search: { products: { pageInfo: { totalCount: number } } }
+  search: {
+    products: {
+      pageInfo: { totalCount: number }
+      edges: Array<{ node: { customData: string } }>
+    }
+  }
 }
 
-export type ServerCollectionPageFragment = { collection: { id: string } }
+export type ServerCollectionPageFragment = {
+  extraData: { data: string } | null
+  namedExtraData: { data: string } | null
+  collection: { id: string }
+}
 
-export type ServerProductPageFragment = { product: { id: string } }
+export type ServerProductPageFragment = {
+  extraData: { data: string } | null
+  namedExtraData: { data: string } | null
+  product: { customData: string; id: string }
+}
 
 export type ServerCollectionPageQueryQueryVariables = Exact<{
   slug: Scalars['String']
@@ -1153,6 +1147,8 @@ export type ServerCollectionPageQueryQuery = {
     }
     meta: { selectedFacets: Array<{ key: string; value: string }> }
   }
+  extraData: { data: string } | null
+  namedExtraData: { data: string } | null
 }
 
 export type ServerProductPageQueryQueryVariables = Exact<{
@@ -1166,6 +1162,7 @@ export type ServerProductPageQueryQuery = {
     name: string
     description: string
     releaseDate: string
+    customData: string
     id: string
     seo: { title: string; description: string; canonical: string }
     brand: { name: string }
@@ -1203,6 +1200,8 @@ export type ServerProductPageQueryQuery = {
       valueReference: string
     }>
   }
+  extraData: { data: string } | null
+  namedExtraData: { data: string } | null
 }
 
 export type ValidateCartMutationMutationVariables = Exact<{
@@ -1309,12 +1308,86 @@ export type SubscribeToNewsletterMutation = {
   subscribeToNewsletter: { id: string } | null
 }
 
+export type ClientProductGalleryQueryQueryVariables = Exact<{
+  first: Scalars['Int']
+  after: Scalars['String']
+  sort: StoreSort
+  term: Scalars['String']
+  selectedFacets: Array<IStoreSelectedFacet> | IStoreSelectedFacet
+}>
+
+export type ClientProductGalleryQueryQuery = {
+  search: {
+    products: { pageInfo: { totalCount: number } }
+    facets: Array<
+      | {
+          __typename: 'StoreFacetBoolean'
+          key: string
+          label: string
+          values: Array<{
+            label: string
+            value: string
+            selected: boolean
+            quantity: number
+          }>
+        }
+      | {
+          __typename: 'StoreFacetRange'
+          key: string
+          label: string
+          min: { selected: number; absolute: number }
+          max: { selected: number; absolute: number }
+        }
+    >
+  }
+}
+
+export type ClientProductsQueryQueryVariables = Exact<{
+  first: Scalars['Int']
+  after: InputMaybe<Scalars['String']>
+  sort: StoreSort
+  term: Scalars['String']
+  selectedFacets: Array<IStoreSelectedFacet> | IStoreSelectedFacet
+}>
+
+export type ClientProductsQueryQuery = {
+  search: {
+    products: {
+      pageInfo: { totalCount: number }
+      edges: Array<{
+        node: {
+          customData: string
+          slug: string
+          sku: string
+          name: string
+          gtin: string
+          id: string
+          brand: { name: string; brandName: string }
+          isVariantOf: { productGroupID: string; name: string }
+          image: Array<{ url: string; alternateName: string }>
+          offers: {
+            lowPrice: number
+            offers: Array<{
+              availability: string
+              price: number
+              listPrice: number
+              quantity: number
+              seller: { identifier: string }
+            }>
+          }
+        }
+      }>
+    }
+  }
+}
+
 export type ClientProductQueryQueryVariables = Exact<{
   locator: Array<IStoreSelectedFacet> | IStoreSelectedFacet
 }>
 
 export type ClientProductQueryQuery = {
   product: {
+    customData: string
     sku: string
     name: string
     gtin: string
@@ -1346,44 +1419,6 @@ export type ClientProductQueryQuery = {
       value: any
       valueReference: string
     }>
-  }
-}
-
-export type ClientProductsQueryQueryVariables = Exact<{
-  first: Scalars['Int']
-  after: InputMaybe<Scalars['String']>
-  sort: StoreSort
-  term: Scalars['String']
-  selectedFacets: Array<IStoreSelectedFacet> | IStoreSelectedFacet
-}>
-
-export type ClientProductsQueryQuery = {
-  search: {
-    products: {
-      pageInfo: { totalCount: number }
-      edges: Array<{
-        node: {
-          slug: string
-          sku: string
-          name: string
-          gtin: string
-          id: string
-          brand: { name: string; brandName: string }
-          isVariantOf: { productGroupID: string; name: string }
-          image: Array<{ url: string; alternateName: string }>
-          offers: {
-            lowPrice: number
-            offers: Array<{
-              availability: string
-              price: number
-              listPrice: number
-              quantity: number
-              seller: { identifier: string }
-            }>
-          }
-        }
-      }>
-    }
   }
 }
 
